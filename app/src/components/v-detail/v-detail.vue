@@ -1,7 +1,7 @@
 <template>
 	<div class="v-detail" :class="{ _active }">
 		<v-divider @click.native="_active = !_active">
-			<slot name="title">{{ $t('toggle') }}</slot>
+			<slot name="title">{{ label }}</slot>
 			<v-icon name="unfold_more" small />
 		</v-divider>
 		<transition-expand>
@@ -14,6 +14,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from '@vue/composition-api';
+import { i18n } from '@/lang';
 
 export default defineComponent({
 	model: {
@@ -25,6 +26,10 @@ export default defineComponent({
 		active: {
 			type: Boolean,
 			default: undefined,
+		},
+		label: {
+			type: String,
+			default: i18n.t('toggle'),
 		},
 	},
 

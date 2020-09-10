@@ -78,8 +78,8 @@ export default defineInterface(({ i18n }) => ({
 				interface: 'icon',
 			},
 			schema: {
-				default_value: 'check_box'
-			}
+				default_value: 'check_box',
+			},
 		},
 		{
 			field: 'iconOff',
@@ -90,8 +90,20 @@ export default defineInterface(({ i18n }) => ({
 				interface: 'icon',
 			},
 			schema: {
-				default_value: 'check_box_outline_blank'
-			}
+				default_value: 'check_box_outline_blank',
+			},
+		},
+		{
+			field: 'itemsShown',
+			name: i18n.t('interfaces.checkboxes.items_shown'),
+			type: 'integer',
+			meta: {
+				width: 'half',
+				interface: 'numeric',
+			},
+			schema: {
+				default_value: 8,
+			},
 		},
 	],
 	recommendedDisplays: ['tags'],
