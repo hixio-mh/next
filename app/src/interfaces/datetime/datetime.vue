@@ -50,7 +50,7 @@
 
 		<v-divider />
 
-		<button class="to-now" @click="setToNow">{{ $t('set_to_now') }}</button>
+		<button class="to-now" @click="setToNow">{{ $t('interfaces.datetime.set_to_now') }}</button>
 	</v-menu>
 </template>
 
@@ -137,8 +137,9 @@ export default defineComponent({
 					const { year, month, date, hours, minutes, seconds, period } = newValue;
 
 					const asDate = new Date(year, month, date, period === 'am' ? hours : hours + 12, minutes, seconds);
-
-					emit('input', formatISO(asDate));
+					
+					if(valueAsDate.value?.getTime() != asDate.getTime())
+						emit('input', formatISO(asDate));
 				}
 			},
 			{

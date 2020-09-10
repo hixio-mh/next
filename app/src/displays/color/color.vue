@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="color-dot">
 		<value-null v-if="value === null" />
 		<div class="dot" :style="{'background-color':styles}"></div>
 	</div>
@@ -33,19 +33,23 @@ export default defineComponent({
 			else return props.defaultColor
 		});
 
-		return { displayValue, styles };
+		return { displayValue, styles, isHex };
 	},
 });
 </script>
 
 <style lang="scss" scoped>
-.dot {
-	display: inline-block;
-	flex-shrink: 0;
-	width: 12px;
-	height: 12px;
-	margin: 0 4px;
-	vertical-align: middle;
-	border-radius: 6px;
+.color-dot {
+	display: flex;
+	align-items: center;
+
+	.dot {
+		display: inline-block;
+		flex-shrink: 0;
+		width: 12px;
+		height: 12px;
+		margin: 0 4px;
+		border-radius: 6px;
+	}
 }
 </style>
