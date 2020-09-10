@@ -1,19 +1,14 @@
 <template>
 	<div>
 		<value-null v-if="value === null" />
-		<div class="dot" :style="styles" v-tooltip="displayValue"></div>
+		<div class="dot" :style="{'background-color':styles}"></div>
 	</div>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, PropType } from '@vue/composition-api';
 import formatTitle from '@directus/format-title';
-
-type Choice = {
-	value: string;
-	text: string;
-	color: string | null;
-};
+import { isHex } from '@/utils/color'
 
 export default defineComponent({
 	props: {
@@ -21,30 +16,20 @@ export default defineComponent({
 			type: String,
 			default: null,
 		},
-		choices: {
-			type: Array as PropType<Choice[]>,
-			default: () => [],
-		},
 		defaultColor: {
 			type: String,
 			default: '#B0BEC5',
 		},
 	},
 	setup(props) {
-		const currentChoice = computed(() => {
-			return props.choices.find((choice) => {
-				return choice.value === props.value;
-			});
-		});
 
 		const displayValue = computed(() => {
-			return formatTitle(props.value);
+			return props.value;
 		});
 
 		const styles = computed(() => {
-			return {
-				backgroundColor: currentChoice.value?.color || props.defaultColor,
-			};
+			if(isHex(props.value)) return props.value
+			else return props.defaultColor
 		});
 
 		return { displayValue, styles };

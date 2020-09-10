@@ -37,11 +37,23 @@ export default defineDisplay(({ i18n }) => ({
 			name: i18n.t('format_text'),
 			type: 'boolean',
 			meta: {
-				width: 'half-left',
+				width: 'half',
 				interface: 'toggle',
 			},
 			schema: {
 				default_value: true,
+			},
+		},
+		{
+			field: 'showAsDot',
+			name: i18n.t('displays.labels.show_as_dot'),
+			type: 'boolean',
+			meta: {
+				width: 'half',
+				interface: 'toggle',
+			},
+			schema: {
+				default_value: false,
 			},
 		},
 		{

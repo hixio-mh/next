@@ -11,6 +11,10 @@
 		},
 		"raw": {
 			"raw": "Raw Value"
+		},
+		"labels": {
+			"labels": "Labels",
+			"show_as_dot": "Show as dot"
 		}
 	}
 }
