@@ -19,6 +19,7 @@ import 'codemirror/addon/search/matchesonscrollbar.js';
 import 'codemirror/addon/scroll/annotatescrollbar.js';
 import 'codemirror/addon/lint/lint.js';
 import 'codemirror/addon/search/search.js';
+import 'codemirror/addon/display/placeholder.js';
 
 import 'codemirror/addon/comment/comment.js';
 import 'codemirror/addon/dialog/dialog.js';
@@ -48,6 +49,10 @@ export default defineComponent({
 			type: Boolean,
 			default: true,
 		},
+		placeholder: {
+			type: String,
+			default: null,
+		},
 		language: {
 			type: String,
 			default: 'text/plain',
@@ -73,7 +78,15 @@ export default defineComponent({
 					const content = cm.getValue();
 
 					if (props.type === 'json') {
-						emit('input', JSON.parse(content));
+						if (content.length === 0) {
+							return emit('input', null);
+						}
+
+						try {
+							emit('input', JSON.parse(content));
+						} catch {
+							// We won't stage invalid JSON
+						}
 					} else {
 						emit('input', content);
 					}
@@ -130,9 +143,7 @@ export default defineComponent({
 						if (text.length > 0) {
 							try {
 								jsonlint.parse(text);
-							} catch (e) {
-								console.error(e);
-							}
+							} catch (e) {}
 						}
 						return found;
 					});
@@ -229,6 +240,7 @@ export default defineComponent({
 					lineNumbers: props.lineNumber,
 					readOnly: props.disabled ? 'nocursor' : false,
 					mode: props.language,
+					placeholder: props.placeholder,
 				},
 				props.altOptions ? props.altOptions : {}
 			);
@@ -262,7 +274,13 @@ export default defineComponent({
 		};
 
 		function fillTemplate() {
-			emit('input', props.template);
+			if(props.type === 'json') {
+				try {
+					emit('input', JSON.parse(props.template));
+				} catch {}
+			} else {
+				emit('input', props.template);
+			}
 		}
 	},
 });

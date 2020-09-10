@@ -6,7 +6,15 @@
 			</div>
 		</transition>
 
-		<router-view v-if="!hydrating && appAccess" />
+		<v-info v-if="error" type="danger" :title="$t('unexpected_error')" icon="error" center>
+			{{ $t('unexpected_error_copy') }}
+
+			<template #append>
+				<v-error :error="error" />
+			</template>
+		</v-info>
+
+		<router-view v-else-if="!hydrating && appAccess" />
 
 		<v-info v-else-if="appAccess === false" center :title="$t('no_app_access')" type="danger" icon="block">
 			{{ $t('no_app_access_copy') }}
@@ -42,7 +50,13 @@ export default defineComponent({
 			};
 		});
 
-		watch(() => settingsStore.state.settings?.project_color, setFavicon);
+		watch(
+			[() => settingsStore.state.settings?.project_color, () => settingsStore.state.settings?.project_logo],
+			() => {
+				const hasCustomLogo = !!settingsStore.state.settings?.project_logo;
+				setFavicon(settingsStore.state.settings?.project_color || '#2f80ed', hasCustomLogo);
+			}
+		);
 
 		const { width } = useWindowSize();
 
@@ -79,10 +93,12 @@ export default defineComponent({
 
 		const appAccess = computed(() => {
 			if (!userStore.state.currentUser) return true;
-			return userStore.state.currentUser?.role?.app_access;
+			return userStore.state.currentUser?.role?.app_access || false;
 		});
 
-		return { hydrating, brandStyle, appAccess };
+		const error = computed(() => appStore.state.error);
+
+		return { hydrating, brandStyle, appAccess, error };
 	},
 });
 </script>

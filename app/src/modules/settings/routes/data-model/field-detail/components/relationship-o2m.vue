@@ -8,12 +8,17 @@
 			</div>
 			<div class="field">
 				<div class="type-label">{{ $t('related_collection') }}</div>
-				<v-select :placeholder="$t('select_one')" :items="items" v-model="collectionMany" />
+				<v-select
+					:placeholder="$t('select_one')"
+					:items="items"
+					v-model="collectionMany"
+					:disabled="isExisting"
+				/>
 			</div>
 			<v-input disabled :value="currentCollectionPrimaryKey.field" />
 			<v-select
 				v-model="relations[0].many_field"
-				:disabled="!relations[0].many_collection"
+				:disabled="!relations[0].many_collection || isExisting"
 				:items="fields"
 				:placeholder="!relations[0].many_collection ? $t('select_one') : $t('select_one')"
 			/>
@@ -41,6 +46,10 @@ export default defineComponent({
 		collection: {
 			type: String,
 			required: true,
+		},
+		isExisting: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	setup(props, { emit }) {
@@ -80,16 +89,15 @@ export default defineComponent({
 				if (!state.relations[0].many_collection) return [];
 
 				return fieldsStore.state.fields
-					.filter((field) => {
-						if (field.collection !== state.relations[0].many_collection) return false;
-
-						// Make sure the selected field matches the type of primary key of the current
-						// collection. Otherwise you aren't able to properly save the primary key
-						if (!field.schema || field.type !== currentCollectionPrimaryKey.value.type) return false;
-
-						return true;
-					})
-					.map((field) => field.field);
+					.filter((field) => field.collection === state.relations[0].many_collection)
+					.map((field) => ({
+						text: field.field,
+						value: field.field,
+						disabled:
+							!field.schema ||
+							field.schema?.is_primary_key ||
+							field.type !== currentCollectionPrimaryKey.value.type,
+					}));
 			});
 
 			const collectionMany = computed({

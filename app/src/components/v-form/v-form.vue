@@ -11,6 +11,7 @@
 			:batch-active="batchActiveFields.includes(field.field)"
 			:primary-key="primaryKey"
 			:loading="loading"
+			:validation-error="validationErrors.find((err) => err.field === field.field)"
 			@input="setValue(field, $event)"
 			@unset="unsetValue(field)"
 			@toggle-batch="toggleBatchField(field)"
@@ -19,14 +20,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, ref } from '@vue/composition-api';
+import { defineComponent, PropType, computed, ref, provide } from '@vue/composition-api';
 import { useFieldsStore } from '@/stores/';
-import { Field } from '@/types';
+import { Field, FilterOperator } from '@/types';
 import { useElementSize } from '@/composables/use-element-size';
 import { clone } from 'lodash';
 import marked from 'marked';
 import FormField from './form-field.vue';
 import useFormFields from '@/composables/use-form-fields';
+import { ValidationError } from './types';
 
 type FieldValues = {
 	[field: string]: any;
@@ -70,6 +72,10 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		validationErrors: {
+			type: Array as PropType<ValidationError[]>,
+			default: () => [],
+		},
 	},
 	setup(props, { emit }) {
 		const el = ref<Element | null>(null);
@@ -82,6 +88,8 @@ export default defineComponent({
 		const { formFields, gridClass } = useForm();
 
 		const { toggleBatchField, batchActiveFields } = useBatch();
+
+		provide('values', values);
 
 		return {
 			el,
@@ -115,7 +123,7 @@ export default defineComponent({
 			const gridClass = computed<string | null>(() => {
 				if (el.value === null) return null;
 
-				if (width.value > 612 && width.value <= 792) {
+				if (width.value > 588 && width.value <= 792) {
 					return 'grid';
 				} else {
 					return 'grid with-fill';
@@ -130,7 +138,7 @@ export default defineComponent({
 				return (
 					props.loading ||
 					props.disabled === true ||
-					field.meta.readonly === true ||
+					field.meta?.readonly === true ||
 					(props.batchMode && batchActiveFields.value.includes(field.field) === false)
 				);
 			}
@@ -180,6 +188,8 @@ body {
 </style>
 
 <style lang="scss" scoped>
+@import '@/styles/mixins/breakpoint';
+
 .v-form {
 	&.grid {
 		display: grid;
@@ -196,15 +206,27 @@ body {
 	& > .half,
 	& > .half-left,
 	& > .half-space {
-		grid-column: start / half;
+		grid-column: start / fill;
+
+		@include breakpoint(medium) {
+			grid-column: start / half;
+		}
 	}
 
 	& > .half-right {
-		grid-column: half / full;
+		grid-column: start / fill;
+
+		@include breakpoint(medium) {
+			grid-column: half / full;
+		}
 	}
 
 	& > .full {
-		grid-column: start / full;
+		grid-column: start / fill;
+
+		@include breakpoint(medium) {
+			grid-column: start / full;
+		}
 	}
 
 	& > .fill {

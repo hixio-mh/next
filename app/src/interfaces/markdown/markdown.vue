@@ -4,11 +4,11 @@
 			<v-tabs v-model="currentTab">
 				<v-tab>
 					<v-icon name="code" left />
-					{{ $t('edit') }}
+					{{ $t('interfaces.markdown.edit') }}
 				</v-tab>
 				<v-tab>
 					<v-icon name="visibility" outline left />
-					{{ $t('preview') }}
+					{{ $t('interfaces.markdown.preview') }}
 				</v-tab>
 			</v-tabs>
 		</div>
@@ -64,10 +64,7 @@ export default defineComponent({
 .interface-markdown {
 	--v-textarea-min-height: var(--input-height-tall);
 	--v-textarea-max-height: 400px;
-
-	--v-tab-color: var(--foreground-normal);
 	--v-tab-background-color: var(--background-subdued);
-	--v-tab-color-active: var(--foreground-normal);
 	--v-tab-background-color-active: var(--background-subdued);
 
 	display: flex;
@@ -76,9 +73,9 @@ export default defineComponent({
 	.toolbar {
 		width: 100%;
 		height: 42px;
+		background-color: var(--background-subdued);
 		border: var(--border-width) solid var(--border-normal);
 		border-radius: var(--border-radius) var(--border-radius) 0 0;
-		background-color: var(--background-subdued);
 	}
 
 	.v-textarea {

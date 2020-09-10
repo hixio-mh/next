@@ -1,7 +1,12 @@
 <template>
 	<v-modal
 		:active="true"
-		:title="field === '+' ? $t('creating_new_field') : $t('updating_field_field', { field: existingField.name })"
+		:title="
+			field === '+'
+				? $t('creating_new_field', { collection: collectionInfo.name })
+				: $t('updating_field_field', { field: existingField.name, collection: collectionInfo.name })
+		"
+		:subtitle="localType ? $t(`field_${localType}`) : null"
 		persistent
 	>
 		<template #sidebar>
@@ -42,6 +47,7 @@
 				:collection="collection"
 				:current.sync="currentTab"
 				:tabs="tabs"
+				:is-existing="field !== '+'"
 				@save="saveField"
 				@cancel="cancelField"
 			/>
@@ -50,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, computed, reactive, PropType, watch } from '@vue/composition-api';
+import { defineComponent, onMounted, ref, computed, reactive, PropType, watch, toRefs } from '@vue/composition-api';
 import SetupTabs from './components/tabs.vue';
 import SetupActions from './components/actions.vue';
 import SetupSchema from './components/schema.vue';
@@ -64,6 +70,8 @@ import { Relation } from '@/types';
 import { useFieldsStore, useRelationsStore } from '@/stores/';
 import { Field } from '@/types';
 import router from '@/router';
+import useCollection from '@/composables/use-collection';
+import notify from '@/utils/notify';
 
 import { initLocalStore, state, clearLocalStore } from './store';
 
@@ -94,6 +102,9 @@ export default defineComponent({
 		const fieldsStore = useFieldsStore();
 		const relationsStore = useRelationsStore();
 
+		const { collection } = toRefs(props);
+		const { info: collectionInfo } = useCollection(collection);
+
 		const existingField = computed(() => {
 			if (props.field === '+') return null;
 
@@ -117,7 +128,6 @@ export default defineComponent({
 		const saving = ref(false);
 
 		return {
-			// active,
 			tabs,
 			currentTab,
 			fieldData: state.fieldData,
@@ -128,6 +138,7 @@ export default defineComponent({
 			cancelField,
 			localType,
 			existingField,
+			collectionInfo,
 		};
 
 		function useTabs() {
@@ -231,6 +242,19 @@ export default defineComponent({
 
 				await fieldsStore.hydrate();
 				await relationsStore.hydrate();
+
+				if (props.field !== '+') {
+					notify({
+						title: i18n.t('field_update_success', { field: props.field }),
+						type: 'success',
+					});
+				} else {
+					notify({
+						title: i18n.t('field_create_success', { field: state.fieldData.field }),
+						type: 'success',
+					});
+				}
+
 				router.push(`/settings/data-model/${props.collection}`);
 				clearLocalStore();
 			} catch (error) {

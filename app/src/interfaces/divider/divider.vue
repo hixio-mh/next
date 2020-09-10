@@ -1,12 +1,12 @@
 <template>
 	<v-divider
-		:inline-title="false"
 		:class="{ margin: icon || title }"
 		:style="{
 			'--v-divider-color': color,
 			'--v-divider-label-color': color,
 		}"
 		large
+		:inline-title="inlineTitle"
 	>
 		<template v-if="icon" #icon><v-icon :name="icon" /></template>
 		<template v-if="title" #default>{{ title }}</template>
@@ -30,12 +30,16 @@ export default defineComponent({
 			type: String,
 			default: null,
 		},
+		inlineTitle: {
+			type: Boolean,
+			default: false,
+		},
 	},
 });
 </script>
 
 <style lang="scss" scoped>
 .margin {
-	margin-top: 48px;
+	margin-top: 12px;
 }
 </style>

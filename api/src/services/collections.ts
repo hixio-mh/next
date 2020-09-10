@@ -1,11 +1,12 @@
 import database, { schemaInspector } from '../database';
-import { AbstractServiceOptions, Accountability, Collection } from '../types';
+import { AbstractServiceOptions, Accountability, Collection, Relation } from '../types';
 import Knex from 'knex';
 import { ForbiddenException, InvalidPayloadException } from '../exceptions';
 import SchemaInspector from 'knex-schema-inspector';
 import FieldsService from '../services/fields';
 import { omit } from 'lodash';
 import ItemsService from '../services/items';
+import cache from '../cache';
 
 export default class CollectionsService {
 	knex: Knex;
@@ -85,6 +86,10 @@ export default class CollectionsService {
 			}
 		});
 
+		if (cache) {
+			await cache.clear();
+		}
+
 		return Array.isArray(data) ? createdCollections : createdCollections[0];
 	}
 
@@ -101,7 +106,7 @@ export default class CollectionsService {
 			const permissions = await this.knex
 				.select('collection')
 				.from('directus_permissions')
-				.where({ operation: 'read' })
+				.where({ action: 'read' })
 				.where({ role: this.accountability.role })
 				.whereIn('collection', collectionKeys);
 
@@ -150,7 +155,7 @@ export default class CollectionsService {
 			const collectionsYouHavePermissionToRead: string[] = (
 				await this.knex.select('collection').from('directus_permissions').where({
 					role: this.accountability.role,
-					operation: 'read',
+					action: 'read',
 				})
 			).map(({ collection }) => collection);
 
@@ -199,12 +204,27 @@ export default class CollectionsService {
 			const payload = data as Partial<Collection>;
 
 			if (!payload.meta) {
-				throw new InvalidPayloadException(`"system" key is required`);
+				throw new InvalidPayloadException(`"meta" key is required`);
 			}
 
-			return (await collectionItemsService.update(payload.meta!, key as any)) as
-				| string
-				| string[];
+			const keys = Array.isArray(key) ? key : [key];
+
+			for (const key of keys) {
+				const exists =
+					(await this.knex
+						.select('collection')
+						.from('directus_collections')
+						.where({ collection: key })
+						.first()) !== undefined;
+
+				if (exists) {
+					await collectionItemsService.update(payload.meta, key);
+				} else {
+					await collectionItemsService.create({ ...payload.meta, collection: key });
+				}
+			}
+
+			return key;
 		}
 
 		const payloads = Array.isArray(data) ? data : [data];
@@ -218,6 +238,10 @@ export default class CollectionsService {
 
 		await collectionItemsService.update(collectionUpdates);
 
+		if (cache) {
+			await cache.clear();
+		}
+
 		return key!;
 	}
 
@@ -227,6 +251,11 @@ export default class CollectionsService {
 		if (this.accountability && this.accountability.admin !== true) {
 			throw new ForbiddenException('Only admins can perform this action.');
 		}
+
+		const fieldsService = new FieldsService({
+			knex: this.knex,
+			accountability: this.accountability,
+		});
 
 		const tablesInDatabase = await schemaInspector.tables();
 
@@ -242,11 +271,29 @@ export default class CollectionsService {
 		await this.knex('directus_presets').delete().whereIn('collection', collectionKeys);
 		await this.knex('directus_revisions').delete().whereIn('collection', collectionKeys);
 		await this.knex('directus_activity').delete().whereIn('collection', collectionKeys);
+		await this.knex('directus_permissions').delete().whereIn('collection', collectionKeys);
 
-		await this.knex('directus_relations')
-			.delete()
-			.whereIn('many_collection', collectionKeys)
-			.orWhereIn('one_collection', collectionKeys);
+		const relations = await this.knex
+			.select<Relation[]>('*')
+			.from('directus_relations')
+			.where({ many_collection: collection })
+			.orWhere({ one_collection: collection });
+
+		for (const relation of relations) {
+			const isM2O = relation.many_collection === collection;
+
+			if (isM2O) {
+				await this.knex('directus_relations')
+					.delete()
+					.where({ many_collection: collection, many_field: relation.many_field });
+				await fieldsService.deleteField(relation.one_collection, relation.one_field);
+			} else {
+				await this.knex('directus_relations')
+					.update({ one_field: null })
+					.where({ one_collection: collection, field: relation.one_field });
+				await fieldsService.deleteField(relation.many_collection, relation.many_field);
+			}
+		}
 
 		const collectionItemsService = new ItemsService('directus_collections', {
 			knex: this.knex,
@@ -256,6 +303,10 @@ export default class CollectionsService {
 
 		for (const collectionKey of collectionKeys) {
 			await this.knex.schema.dropTable(collectionKey);
+		}
+
+		if (cache) {
+			await cache.clear();
 		}
 
 		return collection;

@@ -4,7 +4,7 @@
 
 		<template #title-outer:prepend>
 			<v-button class="header-icon" rounded disabled icon secondary>
-				<v-icon name="bookmark" />
+				<v-icon name="bookmark_border" />
 			</v-button>
 		</template>
 
@@ -12,7 +12,7 @@
 			<v-dialog v-model="confirmDelete" v-if="selection.length > 0">
 				<template #activator="{ on }">
 					<v-button rounded icon class="action-delete" @click="on" v-tooltip.bottom="$t('delete')">
-						<v-icon name="delete" />
+						<v-icon name="delete" outline />
 					</v-button>
 				</template>
 
@@ -92,7 +92,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from '@vue/composition-api';
-import SettingsNavigation from '../../../components/navigation';
+import SettingsNavigation from '../../../components/navigation.vue';
 
 import api from '@/api';
 import { Header } from '@/components/v-table/types';
@@ -110,7 +110,7 @@ type PresetRaw = {
 	user: null | { first_name: string; last_name: string };
 	role: null | { name: string };
 	collection: string;
-	view_type: string;
+	layout: string;
 };
 
 type Preset = {
@@ -176,7 +176,7 @@ export default defineComponent({
 					}
 
 					const collection = collectionsStore.getCollection(preset.collection)?.name;
-					const layout = layouts.find((l) => l.id === preset.view_type)?.name;
+					const layout = layouts.find((l) => l.id === preset.layout)?.name;
 
 					return {
 						id: preset.id,
@@ -203,7 +203,7 @@ export default defineComponent({
 								'user.last_name',
 								'role.name',
 								'collection',
-								'view_type',
+								'layout',
 							],
 							limit: -1,
 						},

@@ -12,6 +12,7 @@
 					:placeholder="$t('select_one')"
 					:items="items"
 					v-model="relations[0].one_collection"
+					:disabled="isExisting"
 				/>
 			</div>
 			<v-input disabled :value="fieldData.field" />
@@ -19,16 +20,16 @@
 			<v-icon name="arrow_back" />
 		</div>
 
-		<v-divider />
+		<v-divider v-if="!isExisting" />
 
-		<div class="grid">
+		<div class="grid" v-if="!isExisting">
 			<div class="field">
 				<div class="type-label">{{ $t('create_corresponding_field') }}</div>
 				<v-checkbox block :label="correspondingLabel" v-model="hasCorresponding" />
 			</div>
 			<div class="field">
 				<div class="type-label">{{ $t('corresponding_field_name') }}</div>
-				<v-input :disabled="hasCorresponding === false" v-model="correspondingField" />
+				<v-input :disabled="hasCorresponding === false" v-model="correspondingField" db-safe />
 			</div>
 			<v-icon name="arrow_forward" />
 		</div>
@@ -56,6 +57,10 @@ export default defineComponent({
 			type: String,
 			required: true,
 		},
+		isExisting: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	setup(props, { emit }) {
 		const collectionsStore = useCollectionsStore();
@@ -78,10 +83,7 @@ export default defineComponent({
 			const availableCollections = computed(() => {
 				return orderBy(
 					collectionsStore.state.collections.filter((collection) => {
-						return (
-							collection.collection.startsWith('directus_') === false &&
-							collection.collection !== props.collection
-						);
+						return collection.collection.startsWith('directus_') === false;
 					}),
 					['collection'],
 					['asc']
@@ -113,7 +115,7 @@ export default defineComponent({
 					if (enabled === true) {
 						state.newFields = [
 							{
-								field: '',
+								field: state.relations[0].one_collection,
 								collection: state.relations[0].one_collection,
 								meta: {
 									special: 'o2m',

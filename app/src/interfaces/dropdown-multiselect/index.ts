@@ -3,7 +3,8 @@ import InterfaceDropdownMultiselect from './dropdown-multiselect.vue';
 
 export default defineInterface(({ i18n }) => ({
 	id: 'dropdown-multiselect',
-	name: i18n.t('dropdown_multiple'),
+	name: i18n.t('interfaces.dropdown-multiselect.dropdown-multiselect'),
+	description: i18n.t('interfaces.dropdown-multiselect.description'),
 	icon: 'arrow_drop_down_circle',
 	component: InterfaceDropdownMultiselect,
 	types: ['json'],
@@ -16,6 +17,7 @@ export default defineInterface(({ i18n }) => ({
 				width: 'full',
 				interface: 'repeater',
 				options: {
+					placeholder: i18n.t('interfaces.dropdown.choices_placeholder'),
 					template: '{{ text }}',
 					fields: [
 						{
@@ -23,43 +25,67 @@ export default defineInterface(({ i18n }) => ({
 							type: 'string',
 							name: i18n.t('text'),
 							meta: {
+								width: 'half',
 								interface: 'text-input',
-							}
+							},
 						},
 						{
 							field: 'value',
 							type: 'string',
 							name: i18n.t('value'),
 							meta: {
+								width: 'half',
 								interface: 'text-input',
 								options: {
-									font: 'monospace'
+									font: 'monospace',
 								},
-							}
+							},
 						},
-					]
-				}
-			}
+					],
+				},
+			},
 		},
 		{
 			field: 'allowOther',
-			name: i18n.t('allow_other'),
+			name: i18n.t('interfaces.dropdown.allow_other'),
 			type: 'boolean',
 			meta: {
 				width: 'half',
 				interface: 'toggle',
+				options: {
+					label: i18n.t('interfaces.dropdown.allow_other_label'),
+				},
+			},
+			schema: {
 				default_value: false,
-			}
+			},
 		},
 		{
 			field: 'allowNone',
-			name: i18n.t('allow_none'),
+			name: i18n.t('interfaces.dropdown.allow_none'),
 			type: 'boolean',
 			meta: {
 				width: 'half',
 				interface: 'toggle',
+				options: {
+					label: i18n.t('interfaces.dropdown.allow_none_label'),
+				},
+			},
+			schema: {
 				default_value: false,
-			}
+			},
+		},
+		{
+			field: 'placeholder',
+			name: i18n.t('placeholder'),
+			type: 'string',
+			meta: {
+				width: 'half',
+				interface: 'text-input',
+				options: {
+					placeholder: i18n.t('enter_a_placeholder'),
+				},
+			},
 		},
 		{
 			field: 'icon',
@@ -68,7 +94,8 @@ export default defineInterface(({ i18n }) => ({
 			meta: {
 				width: 'half',
 				interface: 'icon',
-			}
+			},
 		},
 	],
+	recommendedDisplays: ['tags'],
 }));

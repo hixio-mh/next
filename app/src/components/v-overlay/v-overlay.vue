@@ -33,8 +33,8 @@ export default defineComponent({
 
 <style>
 body {
-	--v-overlay-color: rgba(38, 50, 56, 0.9);
-	--v-overlay-z-index: 500;
+	--v-overlay-color: var(--overlay-color);
+	--v-overlay-z-index: 600;
 }
 </style>
 

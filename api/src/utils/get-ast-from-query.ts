@@ -8,17 +8,19 @@ import {
 	FieldAST,
 	Query,
 	Relation,
-	Operation,
+	PermissionsAction,
 	Accountability,
 } from '../types';
 import database from '../database';
+import { clone } from 'lodash';
 
 export default async function getASTFromQuery(
 	collection: string,
 	query: Query,
 	accountability?: Accountability | null,
-	operation?: Operation
+	action?: PermissionsAction
 ): Promise<AST> {
+	query = clone(query);
 	/**
 	 * we might not need al this info at all times, but it's easier to fetch it all once, than trying to fetch it for every
 	 * requested field. @todo look into utilizing graphql/dataloader for this purpose
@@ -30,7 +32,7 @@ export default async function getASTFromQuery(
 			? await database
 					.select<{ collection: string; fields: string }[]>('collection', 'fields')
 					.from('directus_permissions')
-					.where({ role: accountability.role, operation: operation || 'read' })
+					.where({ role: accountability.role, action: action || 'read' })
 			: null;
 
 	const ast: AST = {

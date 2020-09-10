@@ -3,9 +3,10 @@ import DisplayCollection from './collection.vue';
 
 export default defineDisplay(({ i18n }) => ({
 	id: 'collection',
-	name: i18n.t('collection'),
+	name: i18n.t('displays.collection.collection'),
+	description: i18n.t('displays.collection.description'),
 	types: ['string'],
-	icon: 'box',
+	icon: 'label',
 	handler: DisplayCollection,
 	options: [
 		{
@@ -15,8 +16,11 @@ export default defineDisplay(({ i18n }) => ({
 			meta: {
 				interface: 'toggle',
 				options: {
-					label: `Show the collection's icon`,
+					label: i18n.t('displays.collection.icon_label'),
 				},
+			},
+			schema: {
+				default_value: false,
 			},
 		},
 	],

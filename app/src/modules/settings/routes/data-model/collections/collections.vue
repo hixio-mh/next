@@ -56,8 +56,9 @@
 							meta: item.collection.startsWith('directus_'),
 							unmanaged: item.managed === false && item.collection.startsWith('directus_') === false,
 						}"
+						v-tooltip="item.name"
 					>
-						{{ item.name }}
+						{{ item.collection }}
 					</span>
 				</template>
 
@@ -68,6 +69,13 @@
 				</template>
 
 				<template #item-append="{ item }">
+					<v-icon
+						small
+						class="no-meta"
+						name="report_problem"
+						v-if="!item.meta"
+						v-tooltip="$t('db_only_click_to_configure')"
+					/>
 					<collection-options :collection="item" />
 				</template>
 			</v-table>
@@ -86,15 +94,15 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from '@vue/composition-api';
-import SettingsNavigation from '../../../components/navigation/';
-import { HeaderRaw } from '../../../../../components/v-table/types';
+import SettingsNavigation from '../../../components/navigation.vue';
+import { HeaderRaw } from '@/components/v-table/types';
 import { i18n } from '@/lang/';
 import { useCollectionsStore } from '@/stores/';
 import { Collection } from '@/types';
 import router from '@/router';
 import { sortBy } from 'lodash';
-import CollectionOptions from './components/collection-options';
-import CollectionsFilter from './components/collections-filter';
+import CollectionOptions from './components/collection-options.vue';
+import CollectionsFilter from './components/collections-filter.vue';
 import marked from 'marked';
 
 export default defineComponent({
@@ -211,6 +219,10 @@ export default defineComponent({
 	vertical-align: baseline;
 }
 
+.collection {
+	font-family: var(--family-monospace);
+}
+
 .hidden {
 	color: var(--foreground-subdued);
 }
@@ -237,5 +249,11 @@ export default defineComponent({
 .header-icon {
 	--v-button-color-disabled: var(--warning);
 	--v-button-background-color-disabled: var(--warning-25);
+}
+
+.no-meta {
+	--v-icon-color: var(--foreground-subdued);
+
+	margin-right: 4px;
 }
 </style>

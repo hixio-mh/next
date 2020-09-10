@@ -1,7 +1,60 @@
 import { Filter } from '../types';
-import Joi, { AnySchema } from 'joi';
+import BaseJoi, { AnySchema } from 'joi';
 
-export default function generateJoi(filter: Filter) {
+const Joi: typeof BaseJoi = BaseJoi.extend({
+	type: 'string',
+	base: BaseJoi.string(),
+	messages: {
+		'string.contains': '{{#label}} must contain [{{#substring}}]',
+		'string.ncontains': "{{#label}} can't contain [{{#substring}}]",
+	},
+	rules: {
+		contains: {
+			args: [
+				{
+					name: 'substring',
+					ref: true,
+					assert: (val) => typeof val === 'string',
+					message: 'must be a string',
+				},
+			],
+			method(substring) {
+				return this.$_addRule({ name: 'contains', args: { substring } });
+			},
+			validate(value, helpers, { substring }, options) {
+				if (value.includes(substring) === false) {
+					return helpers.error('string.contains', { substring });
+				}
+
+				return value;
+			},
+		},
+		ncontains: {
+			args: [
+				{
+					name: 'substring',
+					ref: true,
+					assert: (val) => typeof val === 'string',
+					message: 'must be a string',
+				},
+			],
+			method(substring) {
+				return this.$_addRule({ name: 'ncontains', args: { substring } });
+			},
+			validate(value, helpers, { substring }, options) {
+				if (value.includes(substring) === true) {
+					return helpers.error('string.ncontains', { substring });
+				}
+
+				return value;
+			},
+		},
+	},
+});
+
+export default function generateJoi(filter: Filter | null) {
+	filter = filter || {};
+
 	const schema: Record<string, AnySchema> = {};
 
 	for (const [key, value] of Object.entries(filter)) {
@@ -10,16 +63,22 @@ export default function generateJoi(filter: Filter) {
 		if (isField) {
 			const operator = Object.keys(value)[0];
 
-			/** @TODO
-			 * - Extend with all operators
-			 */
-
 			if (operator === '_eq') {
 				schema[key] = Joi.any().equal(Object.values(value)[0]);
 			}
 
 			if (operator === '_neq') {
 				schema[key] = Joi.any().not(Object.values(value)[0]);
+			}
+
+			if (operator === '_contains') {
+				// @ts-ignore
+				schema[key] = Joi.string().contains(Object.values(value)[0]);
+			}
+
+			if (operator === '_ncontains') {
+				// @ts-ignore
+				schema[key] = Joi.string().ncontains(Object.values(value)[0]);
 			}
 
 			if (operator === '_in') {
@@ -34,8 +93,42 @@ export default function generateJoi(filter: Filter) {
 				schema[key] = Joi.number().greater(Number(Object.values(value)[0]));
 			}
 
+			if (operator === '_gte') {
+				schema[key] = Joi.number().min(Number(Object.values(value)[0]));
+			}
+
 			if (operator === '_lt') {
 				schema[key] = Joi.number().less(Number(Object.values(value)[0]));
+			}
+
+			if (operator === '_lte') {
+				schema[key] = Joi.number().max(Number(Object.values(value)[0]));
+			}
+
+			if (operator === '_null') {
+				schema[key] = Joi.any().valid(null);
+			}
+
+			if (operator === '_nnull') {
+				schema[key] = Joi.any().invalid(null);
+			}
+
+			if (operator === '_empty') {
+				schema[key] = Joi.any().valid('');
+			}
+
+			if (operator === '_nempty') {
+				schema[key] = Joi.any().invalid('');
+			}
+
+			if (operator === '_between') {
+				const values = Object.values(value)[0] as number[];
+				schema[key] = Joi.number().greater(values[0]).less(values[1]);
+			}
+
+			if (operator === '_nbetween') {
+				const values = Object.values(value)[0] as number[];
+				schema[key] = Joi.number().less(values[0]).greater(values[1]);
 			}
 		}
 	}

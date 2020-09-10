@@ -11,7 +11,7 @@
 		</v-notice>
 
 		<template v-if="fieldData.meta.interface && selectedInterface">
-			<v-notice v-if="!selectedInterface.options">
+			<v-notice v-if="!selectedInterface.options || selectedInterface.options.length === 0">
 				{{ $t('no_options_available') }}
 			</v-notice>
 
@@ -22,16 +22,22 @@
 				v-model="fieldData.meta.options"
 			/>
 
-			<component v-model="fieldData" :is="`interface-options-${selectedInterface.id}`" v-else />
+			<component
+				v-model="fieldData.meta.options"
+				:field-data="fieldData"
+				:is="`interface-options-${selectedInterface.id}`"
+				v-else
+			/>
 		</template>
 	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from '@vue/composition-api';
-import interfaces from '@/interfaces';
+import { defineComponent, computed, watch } from '@vue/composition-api';
+import { getInterfaces } from '@/interfaces';
+import { FancySelectItem } from '@/components/v-fancy-select/types';
 
-import { state } from '../store';
+import { state, availableInterfaces } from '../store';
 
 export default defineComponent({
 	props: {
@@ -41,35 +47,65 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
-		const availableInterfaces = computed(() =>
-			interfaces.filter((inter) => {
-				const matchesType = inter.types.includes(state.fieldData?.type || 'alias');
-				let matchesRelation = false;
+		const interfaces = getInterfaces();
 
-				if (props.type === 'standard' || props.type === 'presentation') {
-					matchesRelation = inter.relationship === null || inter.relationship === undefined;
-				} else if (props.type === 'file') {
-					matchesRelation = inter.relationship === 'm2o';
-				} else if (props.type === 'files') {
-					matchesRelation = inter.relationship === 'm2m';
-				} else {
-					matchesRelation = inter.relationship === props.type;
+		const selectItems = computed(() => {
+			const type: string = state.fieldData?.type || 'alias';
+
+			const recommendedInterfacesPerType: { [type: string]: string[] } = {
+				string: ['text-input', 'dropdown'],
+				text: ['wysiwyg'],
+				boolean: ['toggle'],
+				integer: ['numeric'],
+				bigInteger: ['numeric'],
+				float: ['numeric'],
+				decimal: ['numeric'],
+				timestamp: ['datetime'],
+				datetime: ['datetime'],
+				date: ['datetime'],
+				time: ['datetime'],
+				json: ['checkboxes', 'tags'],
+				uuid: ['text-input'],
+			};
+
+			const recommended = recommendedInterfacesPerType[type] || [];
+
+			const interfaceItems: FancySelectItem[] = availableInterfaces.value.map((inter) => {
+				const item: FancySelectItem = {
+					text: inter.name,
+					description: inter.description,
+					value: inter.id,
+					icon: inter.icon,
+				};
+
+				if (recommended.includes(item.value as string)) {
+					item.iconRight = 'star';
 				}
 
-				return matchesType && matchesRelation;
-			})
-		);
+				return item;
+			});
 
-		const selectItems = computed(() =>
-			availableInterfaces.value.map((inter) => ({
-				text: inter.name,
-				value: inter.id,
-				icon: inter.icon,
-			}))
-		);
+			const recommendedItems: (FancySelectItem | { divider: boolean } | undefined)[] = [];
+
+			const recommendedList = recommended.map((key) => interfaceItems.find((item) => item.value === key));
+			if (recommendedList !== undefined) {
+				recommendedItems.push(...recommendedList.filter((i) => i));
+			}
+
+			if (interfaceItems.length >= 5 && recommended.length > 0) {
+				recommendedItems.push({ divider: true });
+			}
+
+			const interfaceList = interfaceItems.filter((item) => recommended.includes(item.value as string) === false);
+			if (interfaceList !== undefined) {
+				recommendedItems.push(...interfaceList.filter((i) => i));
+			}
+
+			return recommendedItems;
+		});
 
 		const selectedInterface = computed(() => {
-			return interfaces.find((inter) => inter.id === state.fieldData.meta.interface);
+			return interfaces.value.find((inter) => inter.id === state.fieldData.meta.interface);
 		});
 
 		return { fieldData: state.fieldData, selectItems, selectedInterface };

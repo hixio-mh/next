@@ -4,9 +4,9 @@
  */
 
 import { RequestHandler } from 'express';
-import { Query, Sort, Filter } from '../types/query';
-import { Meta } from '../types/meta';
+import { Accountability, Query, Sort, Filter, Meta } from '../types';
 import logger from '../logger';
+import { parseFilter } from '../utils/parse-filter';
 
 const sanitizeQuery: RequestHandler = (req, res, next) => {
 	req.sanitizedQuery = {};
@@ -16,10 +16,10 @@ const sanitizeQuery: RequestHandler = (req, res, next) => {
 		fields: sanitizeFields(req.query.fields) || ['*'],
 	};
 
-	if (req.query.limit) {
+	if (req.query.limit !== undefined) {
 		const limit = sanitizeLimit(req.query.limit);
 
-		if (limit) {
+		if (typeof limit === 'number') {
 			query.limit = limit;
 		}
 	}
@@ -29,7 +29,7 @@ const sanitizeQuery: RequestHandler = (req, res, next) => {
 	}
 
 	if (req.query.filter) {
-		query.filter = sanitizeFilter(req.query.filter);
+		query.filter = sanitizeFilter(req.query.filter, req.accountability || null);
 	}
 
 	if (req.query.limit == '-1') {
@@ -56,14 +56,12 @@ const sanitizeQuery: RequestHandler = (req, res, next) => {
 		query.search = req.query.search;
 	}
 
-	if (req.permissions) {
-		query.filter = {
-			...(query.filter || {}),
-			...(req.permissions.permissions || {}),
-		};
+	if (req.query.export && typeof req.query.export === 'string' && ['json', 'csv'].includes(req.query.export)) {
+		query.export = req.query.export as 'json' | 'csv';
 	}
 
 	req.sanitizedQuery = query;
+	Object.freeze(req.sanitizedQuery);
 	return next();
 };
 
@@ -93,7 +91,7 @@ function sanitizeSort(rawSort: any) {
 	});
 }
 
-function sanitizeFilter(rawFilter: any) {
+function sanitizeFilter(rawFilter: any, accountability: Accountability | null) {
 	let filters: Filter = rawFilter;
 
 	if (typeof rawFilter === 'string') {
@@ -104,16 +102,13 @@ function sanitizeFilter(rawFilter: any) {
 		}
 	}
 
-	/**
-	 * @todo
-	 * validate filter syntax?
-	 */
+	filters = parseFilter(filters, accountability);
 
 	return filters;
 }
 
 function sanitizeLimit(rawLimit: any) {
-	if (!rawLimit) return null;
+	if (rawLimit === undefined || rawLimit === null) return null;
 	return Number(rawLimit);
 }
 
@@ -141,4 +136,6 @@ function sanitizeMeta(rawMeta: any) {
 	if (Array.isArray(rawMeta)) {
 		return rawMeta;
 	}
+
+	return [rawMeta];
 }

@@ -132,6 +132,7 @@ body {
 
 		.subtitle {
 			color: var(--foreground-subdued);
+			font-size: 16px;
 		}
 
 		.menu-toggle {
@@ -157,6 +158,7 @@ body {
 			position: absolute;
 			top: 0;
 			left: 0;
+			z-index: 2;
 			flex-basis: 220px;
 			flex-shrink: 0;
 			width: 220px;
@@ -177,16 +179,18 @@ body {
 		}
 
 		.v-overlay {
-			--v-overlay-z-index: none;
+			--v-overlay-z-index: 1;
 
 			@include breakpoint(medium) {
+				--v-overlay-z-index: none;
+
 				display: none;
 			}
 		}
 
 		.main {
 			flex-grow: 1;
-			padding: 8px 16px;
+			padding: 16px 16px 32px;
 			overflow: auto;
 
 			@include breakpoint(medium) {

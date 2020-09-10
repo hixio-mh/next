@@ -121,6 +121,10 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		trim: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	setup(props, { emit, listeners }) {
 		const input = ref<HTMLInputElement | null>(null);
@@ -138,6 +142,7 @@ export default defineComponent({
 		return { _listeners, hasClick, stepUp, stepDown, input };
 
 		function processValue(event: KeyboardEvent) {
+			if (!event.key) return;
 			const key = event.key.toLowerCase();
 			const systemKeys = ['meta', 'shift', 'alt', 'backspace', 'tab'];
 			const value = (event.target as HTMLInputElement).value;
@@ -176,20 +181,28 @@ export default defineComponent({
 		function emitValue(event: InputEvent) {
 			let value = (event.target as HTMLInputElement).value;
 
-			if (props.slug === true) {
-				const endsWithSpace = value.endsWith(' ');
-				value = slugify(value, { separator: props.slugSeparator });
-				if (endsWithSpace) value += props.slugSeparator;
-			}
+			if (props.type === 'number') {
+				emit('input', Number(value));
+			} else {
+				if (props.trim === true) {
+					value = value.trim();
+				}
 
-			if (props.dbSafe === true) {
-				value = value.toLowerCase();
-				value = value.replace(/\s/g, '_');
-				// Replace é -> e etc
-				value = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-			}
+				if (props.slug === true) {
+					const endsWithSpace = value.endsWith(' ');
+					value = slugify(value, { separator: props.slugSeparator });
+					if (endsWithSpace) value += props.slugSeparator;
+				}
 
-			emit('input', value);
+				if (props.dbSafe === true) {
+					value = value.toLowerCase();
+					value = value.replace(/\s/g, '_');
+					// Replace é -> e etc
+					value = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				}
+
+				emit('input', value);
+			}
 		}
 
 		function stepUp() {
@@ -199,8 +212,8 @@ export default defineComponent({
 
 			input.value.stepUp();
 
-			if (input.value.value) {
-				return emit('input', input.value.value);
+			if (input.value.value != null) {
+				return emit('input', Number(input.value.value));
 			}
 		}
 
@@ -212,7 +225,7 @@ export default defineComponent({
 			input.value.stepDown();
 
 			if (input.value.value) {
-				return emit('input', input.value.value);
+				return emit('input', Number(input.value.value));
 			} else {
 				return emit('input', props.min || 0);
 			}

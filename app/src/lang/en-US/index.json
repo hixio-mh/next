@@ -10,16 +10,86 @@
 	"only_show_the_file_extension": "Only show the file extension",
 	"textarea": "Textarea",
 
+	"db_only_click_to_configure": "Database Only: Click to Configure ",
+
+	"show_archived_items": "Show Archived Items",
+
 	"create_preset": "Create Preset",
 	"create_role": "Create Role",
 	"create_user": "Create User",
 
 	"rename_folder": "Rename Folder",
+	"delete_folder": "Delete Folder",
+	"reset_bookmark": "Reset Bookmark",
+	"rename_bookmark": "Rename Bookmark",
+	"update_bookmark": "Update Bookmark",
+	"delete_bookmark": "Delete Bookmark",
+	"delete_bookmark_copy": "Are you sure you want to delete the \"{bookmark}\" bookmark? This action cannot be undone.",
+
+	"field_order_updated": "Fields Reordered",
+
+	"logoutReason": {
+		"SIGN_OUT": "Signed out",
+		"SESSION_EXPIRED": "Session expired"
+	},
+
+	"public": "Public",
+	"public_description": "Controls what API data is available without authenticating.",
+
+	"not_allowed": "Not Allowed",
+
+	"directus_version": "Directus Version",
+	"node_version": "Node Version",
+	"node_uptime": "Node Uptime",
+	"os_type": "OS Type",
+	"os_version": "OS Version",
+	"os_uptime": "OS Uptime",
+	"os_totalmem": "OS Memory",
+
+	"archive": "Archive",
+	"archive_confirm": "Are you sure you want to archive this item?",
+	"archive_confirm_count": "No Items Selected | Are you sure you want to archive this item? | Are you sure you want to archive these {count} items?",
+
+	"unarchive": "Unarchive",
+	"unarchive_confirm": "Are you sure you want to unarchive this item?",
+	"unarchive_confirm_count": "No Items Selected | Are you sure you want to unarchive this item? | Are you sure you want to unarchive these {count} items?",
 
 	"nested_files_folders_will_be_moved": "Nested files and folders will be moved one level up.",
 
 	"markdown": "Markdown",
 	"tabbed": "Tabbed",
+
+	"validationError": {
+		"eq": "Value has to be {valid}",
+		"neq": "Value can't be {invalid}",
+		"in": "Value has to be one of {valid}",
+		"nin": "Value can't be one of {invalid}",
+		"contains": "Value has to contain {substring}",
+		"ncontains": "Value can't contain {substring}",
+		"gt": "Value has to be greater than {valid}",
+		"gte": "Value has to be greater than or equal to {valid}",
+		"lt": "Value has to be less than {valid}",
+		"lte": "Value has to be less than or equal to {valid}",
+		"empty": "Value has to be empty",
+		"nempty": "Value can't be empty",
+		"null": "Value has to be null",
+		"nnull": "Value can't be null"
+	},
+
+	"all_access": "All Access",
+	"no_access": "No Access",
+	"use_custom": "Use Custom",
+	"edit_custom": "Edit Custom",
+
+	"item_permissions": "Item Permissions",
+	"field_permissions": "Field Permissions",
+	"field_validation": "Field Validation",
+	"field_presets": "Field Presets",
+
+	"permissions_for_role": "Items the {role} Role can {action}.",
+	"fields_for_role": "Fields the {role} Role can {action}.",
+	"validation_for_role": "Field {action} rules the {role} Role must obey.",
+	"presets_for_role": "Field value defaults for the {role} Role.",
 
 	"presentation_and_aliases": "Presentation & Aliases",
 
@@ -32,12 +102,12 @@
 	"show_field_on_detail": "Show Field on Detail",
 	"delete_field": "Delete Field",
 	"fields_and_layout": "Fields & Layout",
-	"field_create_success": "Field '{field}' created",
-	"field_update_success": "Field '{field}' updated",
-	"field_delete_success": "Field '{field}' deleted",
-	"field_create_failure": "Could not create '{field}'",
-	"field_update_failure": "Could not update '{field}'",
-	"field_delete_failure": "Could not delete '{field}'",
+	"field_create_success": "Field \"{field}\" created",
+	"field_update_success": "Field \"{field}\" updated",
+	"field_delete_success": "Field \"{field}\" deleted",
+	"field_create_failure": "Could not create \"{field}\"",
+	"field_update_failure": "Could not update \"{field}\"",
+	"field_delete_failure": "Could not delete \"{field}\"",
 	"fields_update_success": "Fields updated",
 	"fields_update_failure": "Could not update fields",
 	"duplicate_where_to": "Where would you like to duplicate this field to?",
@@ -48,6 +118,11 @@
 	"language": "Language",
 
 	"preset_colors": "Preset Colors",
+
+	"color_dot": "Color Dot",
+	"default_color": "Default Color",
+
+	"labels": "Labels",
 
 	"global": "Global",
 
@@ -64,12 +139,23 @@
 	"create_field": "Create Field",
 	"update_field": "Update Field",
 
-	"creating_new_field": "Creating New Field",
-	"updating_field_field": "Updating Field {field}",
+	"creating_new_field": "{collection}: New Field",
+	"updating_field_field": "{collection}: \"{field}\" Field",
 	"within_collection": "Within {collection}",
+
+	"field_standard": "Standard",
+	"field_presentation": "Presentation & Aliases",
+	"field_file": "Single File",
+	"field_files": "Multiple Files",
+	"field_m2o": "M2O Relationship",
+	"field_o2m": "O2M Relationship",
+	"field_m2m": "M2M Relationship",
+
+	"reset_page_preferences": "Reset Page Preferences",
 
 	"visible_fields": "Visible Fields",
 	"hidden_fields": "Hidden Fields",
+	"hidden_field": "Hidden Field",
 
 	"key": "Key",
 
@@ -137,6 +223,7 @@
 	"translations": "Translations",
 	"note": "Note",
 	"enter_a_value": "Enter a value...",
+	"enter_a_placeholder": "Enter a placeholder...",
 	"length": "Length",
 	"required": "Required",
 	"readonly": "Readonly",
@@ -207,6 +294,8 @@
 	"this_collection": "This Collection",
 	"related_collection": "Related Collection",
 
+	"related_values": "Related Values",
+
 	"last_page": "Last Page",
 	"last_login": "Last Login",
 
@@ -224,7 +313,6 @@
 	"submit": "Submit",
 
 	"move_to_folder": "Move to Folder",
-	"delete_folder": "Delete Folder",
 	"select_folder": "Select Folder",
 	"move": "Move",
 
@@ -257,6 +345,8 @@
 	"notice": "Notice",
 	"slug": "Slug",
 	"repeater": "Repeater",
+	"max-amount": "Max Amount",
+	"select_mode": "Select Mode",
 
 	"months": {
 		"january": "January",
@@ -317,13 +407,15 @@
 	"primary_key_field": "Primary Key Field",
 	"type": "Type",
 	"number": "Number",
+	"true": "True",
+	"false": "False",
 	"creating_new_collection": "Creating New Collection",
 	"status": "Status",
 	"sort": "Sort",
-	"created_by_owner": "Created By (Owner)",
+	"created_by": "Created By",
 	"created_on": "Created On",
-	"modified_by": "Modified By",
-	"modified_on": "Modified On",
+	"updated_by": "Updated By",
+	"updated_on": "Updated On",
 	"creating_collection_info": "Name the collection and setup its unique “key” field...",
 	"creating_collection_system": "Would you like to add any system fields?",
 	"auto_increment_integer": "Auto-incremented integer",
@@ -379,7 +471,9 @@
 	"checkboxes": "Checkboxes",
 
 	"relationship_not_setup": "The relationship hasn't been configured correctly",
-	"display_template_not_setup": "The display template is misconfigured",
+	"display_template_not_setup": "The display template option is misconfigured",
+	"collection_field_not_setup": "The collection field option is misconfigured",
+	"select_a_collection": "Select a Collection",
 
 	"active": "Active",
 
@@ -422,29 +516,29 @@
 
 	"enabled": "Enabled",
 
+	"enable_tfa": "Enable 2FA",
+	"disable_tfa": "Disable 2FA",
+	"tfa_scan_code": "Scan the code in your authenticator app to finish setting up 2FA",
+	"enter_otp_to_disable_tfa": "Enter the OTP to disable 2FA",
+
 	"use_bold_style": "Use bold style",
 
 	"formatted_value": "Formatted Value",
 	"format_title": "Format Title",
+	"inline_title": "Inline Title",
 	"auto_format_casing": "Auto-format casing",
 
 	"errors": {
-		"3": "Only super admins have access to this",
-		"4": "Super Admin Token not provided",
-		"11": "Can't Reach Database",
-		"12": "Field has invalid regular expression",
-		"100": "Incorrect Email/Password",
-		"101": "Logged-out from Inactivity",
-		"102": "Logged-out from Inactivity",
-		"103": "User Suspended",
-		"105": "Reset link expired",
-		"106": "Incorrect Email/Password",
-		"107": "User Not Found",
-		"111": "Enter One-Time Password",
-		"112": "Wrong One-Time Password",
-		"114": "Incorrect Email/Password",
-		"115": "SSO is not allowed when 2FA is enabled",
-		"503": "Email couldn't be sent. Please verify the API's configuration",
+		"COLLECTION_NOT_FOUND": "Collection doesn't exist.",
+		"FIELD_NOT_FOUND": "Field not found.",
+		"NO_PERMISSION": "Forbidden.",
+		"INVALID_CREDENTIALS": "Wrong username or password.",
+		"INVALID_OTP": "Wrong one-time password.",
+		"INVALID_PAYLOAD": "Invalid payload.",
+		"INVALID_QUERY": "Invalid query.",
+		"ITEM_LIMIT_REACHED": "Item limit reached.",
+		"ITEM_NOT_FOUND": "Item not found.",
+		"ROUTE_NOT_FOUND": "Not found.",
 		"-1": "Couldn't Reach API"
 	},
 
@@ -535,6 +629,7 @@
 	"step_interval": "Step Interval",
 	"icon_left": "Icon Left",
 	"icon_right": "Icon Right",
+	"trimed": "Trimed",
 	"font_family": "Font Family",
 	"font": "Font",
 	"numeric": "Numeric",
@@ -646,6 +741,7 @@
 	"role_only": "Role Only",
 	"update": "Update",
 
+	"edit_fields": "Edit Fields",
 	"select_fields": "Select Fields",
 	"readable_fields": "Readable Fields",
 	"writable_fields": "Writable Fields",
@@ -656,9 +752,6 @@
 	"status_badge": "Status (Badge)",
 	"tags": "Tags",
 	"format_text": "Format Text",
-
-	"outline": "Outline",
-	"use_outline_variant": "Use the outline variant",
 
 	"bold": "Bold",
 	"subdued": "Subdued",
@@ -958,10 +1051,8 @@
   "db_updated": "Database successfully updated",
   "default": "Default",
   "delete": "Delete",
-  "delete_forever": "Delete Forever",
+
   "delete_are_you_sure": "This action is permanent and can not be undone. Are you sure you would like to proceed?",
-  "delete_bookmark": "Delete Bookmark",
-  "delete_bookmark_body": "Are you sure you want to delete this bookmark? This action cannot be undone.",
   "delete_confirmation": "Delete Confirmation",
   "delete_field_are_you_sure": "Are you sure you want to delete the field \"{field}\"? This action can not be undone.",
   "delete_role_are_you_sure": "Are you sure to delete the role \"{name}\"? This action cannot be undone.",
@@ -969,13 +1060,6 @@
   "description": "Description",
   "dialog_beginning": "Beginning of dialog window.",
   "display_name": "Display Name",
-  "directus_version": "Directus Version",
-  "server_stack": "Server Stack",
-  "operating_system": "Operating System",
-  "installed_on": "Installed On",
-  "database_client": "Database Client",
-  "database_host": "Database Host",
-  "database_port": "Database Port",
   "done": "Done",
   "dont_manage": "Don't Manage",
   "dont_manage_copy": "Privileges, preferences, and settings for this collection will be permanently removed from the system! Are you sure?",

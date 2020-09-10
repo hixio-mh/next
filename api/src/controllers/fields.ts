@@ -3,56 +3,50 @@ import asyncHandler from 'express-async-handler';
 import FieldsService from '../services/fields';
 import validateCollection from '../middleware/collection-exists';
 import { schemaInspector } from '../database';
-import { FieldNotFoundException, InvalidPayloadException } from '../exceptions';
+import { InvalidPayloadException, ForbiddenException } from '../exceptions';
 import Joi from 'joi';
 import { Field } from '../types/field';
-import useCollection from '../middleware/use-collection';
-import { Accountability, types } from '../types';
+import { types } from '../types';
 
 const router = Router();
 
-/**
- * @TODO
- *
- * Add accountability / permissions handling to fields
- */
-
 router.get(
 	'/',
-	useCollection('directus_fields'),
-	asyncHandler(async (req, res) => {
+	asyncHandler(async (req, res, next) => {
 		const service = new FieldsService({ accountability: req.accountability });
-
 		const fields = await service.readAll();
-		return res.json({ data: fields || null });
-	})
+
+		res.locals.payload = { data: fields || null };
+		return next();
+	}),
 );
 
 router.get(
 	'/:collection',
 	validateCollection,
-	useCollection('directus_fields'),
-	asyncHandler(async (req, res) => {
+	asyncHandler(async (req, res, next) => {
 		const service = new FieldsService({ accountability: req.accountability });
-
 		const fields = await service.readAll(req.params.collection);
-		return res.json({ data: fields || null });
-	})
+
+		res.locals.payload = { data: fields || null };
+		return next();
+	}),
 );
 
 router.get(
 	'/:collection/:field',
 	validateCollection,
-	useCollection('directus_fields'),
-	asyncHandler(async (req, res) => {
+	asyncHandler(async (req, res, next) => {
 		const service = new FieldsService({ accountability: req.accountability });
 
-		const exists = await schemaInspector.hasColumn(req.collection, req.params.field);
-		if (exists === false) throw new FieldNotFoundException(req.collection, req.params.field);
+		const exists = await schemaInspector.hasColumn(req.params.collection, req.params.field);
+		if (exists === false) throw new ForbiddenException();
 
 		const field = await service.readOne(req.params.collection, req.params.field);
-		return res.json({ data: field || null });
-	})
+
+		res.locals.payload = { data: field || null };
+		return next();
+	}),
 );
 
 const newFieldSchema = Joi.object({
@@ -60,11 +54,11 @@ const newFieldSchema = Joi.object({
 	field: Joi.string().required(),
 	type: Joi.string().valid(...types),
 	schema: Joi.object({
-		comment: Joi.string(),
+		comment: Joi.string().allow(null),
 		default_value: Joi.any(),
 		max_length: [Joi.number(), Joi.string()],
 		is_nullable: Joi.bool(),
-	}),
+	}).unknown(),
 	/** @todo base this on default validation */
 	meta: Joi.any(),
 });
@@ -72,8 +66,7 @@ const newFieldSchema = Joi.object({
 router.post(
 	'/:collection',
 	validateCollection,
-	useCollection('directus_fields'),
-	asyncHandler(async (req, res) => {
+	asyncHandler(async (req, res, next) => {
 		const service = new FieldsService({ accountability: req.accountability });
 
 		const { error } = newFieldSchema.validate(req.body);
@@ -88,15 +81,15 @@ router.post(
 
 		const createdField = await service.readOne(req.params.collection, field.field);
 
-		return res.json({ data: createdField || null });
-	})
+		res.locals.payload = { data: createdField || null };
+		return next();
+	}),
 );
 
 router.patch(
 	'/:collection',
 	validateCollection,
-	useCollection('directus_fields'),
-	asyncHandler(async (req, res) => {
+	asyncHandler(async (req, res, next) => {
 		const service = new FieldsService({ accountability: req.accountability });
 
 		if (Array.isArray(req.body) === false)
@@ -105,48 +98,45 @@ router.patch(
 		let results: any = [];
 
 		for (const field of req.body) {
-			await service.updateField(req.params.collection, field, req.accountability);
+			await service.updateField(req.params.collection, field);
 
 			const updatedField = await service.readOne(req.params.collection, field.field);
 
 			results.push(updatedField);
 		}
 
-		return res.json({ data: results || null });
-	})
+		res.locals.payload = { data: results || null };
+		return next();
+	}),
 );
 
 router.patch(
 	'/:collection/:field',
 	validateCollection,
-	useCollection('directus_fields'),
 	// @todo: validate field
-	asyncHandler(async (req, res) => {
+	asyncHandler(async (req, res, next) => {
 		const service = new FieldsService({ accountability: req.accountability });
-
 		const fieldData: Partial<Field> & { field: string; type: typeof types[number] } = req.body;
 
 		if (!fieldData.field) fieldData.field = req.params.field;
 
-		await service.updateField(req.params.collection, fieldData, req.accountability);
+		await service.updateField(req.params.collection, fieldData);
 
 		const updatedField = await service.readOne(req.params.collection, req.params.field);
 
-		return res.json({ data: updatedField || null });
-	})
+		res.locals.payload = { data: updatedField || null };
+		return next();
+	}),
 );
 
 router.delete(
 	'/:collection/:field',
 	validateCollection,
-	useCollection('directus_fields'),
-	asyncHandler(async (req, res) => {
+	asyncHandler(async (req, res, next) => {
 		const service = new FieldsService({ accountability: req.accountability });
-
-		await service.deleteField(req.params.collection, req.params.field, req.accountability);
-
-		res.status(200).end();
-	})
+		await service.deleteField(req.params.collection, req.params.field);
+		return next();
+	}),
 );
 
 export default router;

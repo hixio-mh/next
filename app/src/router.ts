@@ -20,6 +20,7 @@ export const defaultRoutes: RouteConfig[] = [
 		component: LoginRoute,
 		props: (route) => ({
 			ssoErrorCode: route.query.error ? route.query.code : null,
+			logoutReason: route.query.reason,
 		}),
 		meta: {
 			public: true,
@@ -96,8 +97,12 @@ export const onBeforeEach: NavigationGuard = async (to, from, next) => {
 
 	if (to.meta?.public !== true && appStore.state.hydrated === false) {
 		appStore.state.hydrating = false;
-		if (appStore.state.authenticated) await hydrate();
-		else return next('/login');
+		if (appStore.state.authenticated === true && appStore.state.hydrating === false) {
+			await hydrate();
+			return next(to.fullPath);
+		} else {
+			return next('/login');
+		}
 	}
 
 	return next();
